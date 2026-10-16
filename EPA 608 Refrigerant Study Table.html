@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>EPA 608 Refrigerant Study Table</title>
+  <style>
+    :root {
+      --bg: #eef2f4;
+      --fg: #13232b;
+      --mut: #566870;
+      --line: #cbd6db;
+      --card: #fff;
+      --ac: #0b5c73;
+      --CFC: #b3261e;
+      --HCFC: #9a5b00;
+      --HFC: #1f5fbf;
+      --HFO: #0d7a69;
+      --Natural: #3b7a1c;
+      box-sizing: border-box;
+      padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px)
+    }
+
+    @media(prefers-color-scheme:dark) {
+      :root:not([data-theme="light"]) {
+        color-scheme: dark;
+        --bg: #0f1b21;
+        --fg: #e4edf0;
+        --mut: #93a7b0;
+        --line: #2b3d46;
+        --card: #16262e;
+        --ac: #5cc4de;
+        --CFC: #ff8a80;
+        --HCFC: #f0b45a;
+        --HFC: #7db2ff;
+        --HFO: #4fd1b9;
+        --Natural: #8fd66a
+      }
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0f1b21;
+      --fg: #e4edf0;
+      --mut: #93a7b0;
+      --line: #2b3d46;
+      --card: #16262e;
+      --ac: #5cc4de;
+      --CFC: #ff8a80;
+      --HCFC: #f0b45a;
+      --HFC: #7db2ff;
+      --HFO: #4fd1b9;
+      --Natural: #8fd66a
+    }
+
+    * {
+      box-sizing: inherit
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 3rem
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin: 0 0 .25rem;
+      letter-spacing: -.01em
+    }
+
+    .sub {
+      margin: 0 0 1rem;
+      color: var(--mut)
+    }
+
+    .bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+      align-items: center;
+      margin-bottom: .75rem
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+      color: inherit;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: .35rem .7rem
+    }
+
+    button {
+      cursor: pointer
+    }
+
+    button[aria-pressed=true] {
+      background: var(--ac);
+      border-color: var(--ac);
+      color: var(--bg)
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--ac);
+      outline-offset: 2px
+    }
+
+    #n {
+      color: var(--mut);
+      margin-left: auto
+    }
+
+    #q {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: .75rem
+    }
+
+    #q p {
+      margin: .25rem 0 .75rem
+    }
+
+    #q .a {
+      font-size: 1.4rem;
+      font-weight: 600
+    }
+
+    #q small {
+      color: var(--mut);
+      margin-left: .75rem
+    }
+
+    .w {
+      overflow-x: auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 860px
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: .5rem .75rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top
+    }
+
+    tr:last-child td {
+      border-bottom: 0
+    }
+
+    th button {
+      border: 0;
+      background: none;
+      padding: 0;
+      font-weight: 600;
+      color: var(--mut)
+    }
+
+    td:first-child {
+      border-left: 4px solid var(--g);
+      font-weight: 700;
+      color: var(--g);
+      white-space: nowrap
+    }
+
+    td:nth-child(2) {
+      color: var(--g)
+    }
+
+    td:nth-child(4),
+    td:nth-child(5) {
+      font-variant-numeric: tabular-nums
+    }
+
+    .cv {
+      background: var(--line);
+      color: transparent !important;
+      cursor: pointer;
+      user-select: none
+    }
+
+    @media(prefers-reduced-motion:no-preference) {
+      button {
+        transition: background .15s
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h1>EPA 608 refrigerants</h1>
+    <p class="sub">Sort by any column, filter by type, cover a column and click cells to reveal, or quiz yourself on
+      whatever is filtered.</p>
+    <div class="bar" id="chips"></div>
+    <div class="bar">
+      <input id="s" type="search" placeholder="Search" aria-label="Search">
+      <label>Cover <select id="cv" aria-label="Column to cover"></select></label>
+      <button id="qb">Quiz me</button>
+      <button id="mb">Pick one</button>
+      <span id="n"></span>
+    </div>
+    <div id="q" hidden></div>
+    <div class="w">
+      <table id="t">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+  <script>
+    const $ = s => document.querySelector(s);
+    const H = ['R#', 'Type', 'Chemistry', 'ODP', 'GWP', 'Common use', 'EPA pressure', 'ASHRAE'];
+    const D = `R-11|CFC|Trichlorofluoromethane|1.0|4,750|Centrifugal chillers (legacy)|Low|A1
+R-113|CFC|Trichlorotrifluoroethane|0.8|6,130|Solvent, centrifugal chillers (legacy)|Low|A1
+R-114|CFC|Dichlorotetrafluoroethane|1.0|10,000|Chillers, naval systems (legacy)|Low|A1
+R-12|CFC|Dichlorodifluoromethane|1.0|10,900|Auto A/C, refrigeration (legacy)|High|A1
+R-13|CFC|Chlorotrifluoromethane|1.0|14,400|Ultra-low-temp cascade (legacy)|Very High|A1
+R-500|CFC/HFC blend (azeotrope)|R-12 / R-152a|0.74|8,100|Chillers, A/C (legacy)|High|A1
+R-502|CFC/HCFC blend (azeotrope)|R-22 / R-115|0.33|4,660|Low-temp refrigeration (legacy)|High|A1
+R-22|HCFC|Chlorodifluoromethane|0.055|1,810|Residential/commercial A/C|High|A1
+R-123|HCFC|Dichlorotrifluoroethane|0.02|77|Low-pressure chillers (R-11 replacement)|Low|B1
+R-124|HCFC|Chlorotetrafluoroethane|0.022|609|Blend component, chillers|Medium|A1
+R-401A|HCFC blend (zeotrope)|R-22 / R-152a / R-124|0.037|1,182|R-12 retrofit|High|A1
+R-402A|HCFC blend (zeotrope)|R-125 / R-290 / R-22|0.02|2,788|R-502 retrofit|High|A1
+R-408A|HCFC blend (zeotrope)|R-125 / R-143a / R-22|0.026|3,152|R-502 retrofit|High|A1
+R-134a|HFC|Tetrafluoroethane|0|1,430|Auto A/C, chillers, refrigerators|High|A1
+R-404A|HFC blend (zeotrope)|R-125 / R-143a / R-134a|0|3,922|Commercial refrigeration|High|A1
+R-407C|HFC blend (zeotrope)|R-32 / R-125 / R-134a|0|1,774|R-22 retrofit|High|A1
+R-410A|HFC blend (near-azeotrope)|R-32 / R-125|0|2,088|Residential/commercial A/C|High|A1
+R-454B|HFO/HFC blend (zeotrope)|R-32 / R-1234yf|0|~466|New A/C, R-410A replacement|High|A2L
+R-507A|HFC blend (azeotrope)|R-125 / R-143a|0|3,985|Low-temp refrigeration|High|A1
+R-32|HFC|Difluoromethane|0|675|New-gen A/C, R-410A successor|High|A2L
+R-125|HFC|Pentafluoroethane|0|3,500|Blend component|High|A1
+R-143a|HFC|Trifluoroethane|0|4,470|Blend component|High|A2L
+R-152a|HFC|Difluoroethane|0|124|Blend component, aerosol propellant|Medium|A2
+R-23|HFC|Trifluoromethane|0|14,800|Ultra-low-temp, R-13 replacement|Very High|A1
+R-1234yf|HFO|Tetrafluoropropene|0|<1|Auto A/C (R-134a replacement)|Medium|A2L
+R-1234ze(E)|HFO|Tetrafluoropropene (trans)|0|<1|Chillers|Medium|A2L
+R-1233zd(E)|HFO|Chlorotrifluoropropene (trans)|~0.0003|~1|Low-pressure chillers (R-123 replacement)|Low|A1
+R-717|Natural|Ammonia (NH₃)|0|0|Industrial refrigeration|Medium|B2L
+R-290|Natural (HC)|Propane|0|~3|Small commercial/domestic|High|A3
+R-600a|Natural (HC)|Isobutane|0|~3|Domestic refrigerators|Medium|A3
+R-744|Natural|Carbon dioxide|0|1|Transcritical/cascade systems|Very High|A1`
+      .split('\n').map(l => l.split('|'));
+
+    const G = ['All', 'CFC', 'HCFC', 'HFC', 'HFO', 'Natural'];
+    const grp = r => r[1].split(/[ /]/)[0];
+    const PR = { Low: 0, Medium: 1, High: 2, 'Very High': 3 };
+    const key = (r, i) => i == 0 ? parseInt(r[0].slice(2))
+      : i == 6 ? PR[r[6]]
+        : i == 3 || i == 4 ? parseFloat(r[i].replace(/[^\d.]/g, ''))
+          : r[i].toLowerCase();
+    const f = { g: 'All', s: '', sort: -1, dir: 1, cover: -1 };
+
+    const view = () => {
+      const rows = D.filter(r => (f.g == 'All' || grp(r) == f.g) && r.join(' ').toLowerCase().includes(f.s));
+      return f.sort < 0 ? rows
+        : rows.sort((a, b) => f.dir * ((key(a, f.sort) > key(b, f.sort)) - (key(a, f.sort) < key(b, f.sort))));
+    };
+
+    function draw() {
+      const rows = view();
+      $('#chips').innerHTML = G.map(g => `<button aria-pressed="${g == f.g}">${g}</button>`).join('');
+      $('#t thead').innerHTML = '<tr>' + H.map((h, i) =>
+        `<th><button data-i="${i}">${h}${f.sort == i ? (f.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`).join('') + '</tr>';
+      $('#t tbody').innerHTML = rows.map(r =>
+        `<tr style="--g:var(--${grp(r)})">` + r.map((c, i) => `<td${i == f.cover ? ' class="cv"' : ''}>${c}</td>`).join('') + '</tr>').join('');
+      $('#n').textContent = `${rows.length} of ${D.length}`;
+    }
+
+    // Table: sort on header click, reveal covered cells on click
+    $('#t').onclick = e => {
+      const b = e.target.closest('th button'), c = e.target.closest('.cv');
+      if (b) {
+        const i = +b.dataset.i;
+        f.dir = f.sort == i ? -f.dir : 1;
+        f.sort = i;
+        draw();
+        $(`th button[data-i="${i}"]`).focus();
+      } else if (c) c.classList.remove('cv');
+    };
+    $('#chips').onclick = e => { if (e.target.matches('button')) { f.g = e.target.textContent; draw(); } };
+    $('#s').oninput = e => { f.s = e.target.value.toLowerCase().trim(); draw(); };
+    $('#cv').innerHTML = '<option value="-1">Nothing</option>' + H.slice(1).map((h, i) => `<option value="${i + 1}">${h}</option>`).join('');
+    $('#cv').onchange = e => { f.cover = +e.target.value; draw(); };
+
+    // Quiz: filtered rows in random order; missed ones return to the end of the queue
+    let Q, cur, col, sc;
+    const q = $('#q');
+    function ask() {
+      if (!Q.length) {
+        q.innerHTML = `<p>Done. ${sc[0]} right, ${sc[1]} missed along the way.</p><button data-a="go">Restart</button>`;
+        return;
+      }
+      cur = Q.shift();
+      col = f.cover > 0 ? f.cover : 1 + Math.random() * 7 | 0;
+      q.innerHTML = `<p><b>${cur[0]}</b> ${H[col]}?</p><button data-a="show">Show answer</button><small>${Q.length + 1} left</small>`;
+    }
+    const act = {
+      go() { Q = view().sort(() => Math.random() - .5); sc = [0, 0]; ask(); },
+      show() { q.innerHTML = `<p><b>${cur[0]}</b> ${H[col]}</p><p class="a">${cur[col]}</p><button data-a="ok">Got it</button> <button data-a="no">Missed</button>`; },
+      ok() { sc[0]++; ask(); },
+      no() { sc[1]++; Q.push(cur); ask(); },
+      mc() {
+        M = mcq();
+        q.innerHTML = `<p><b>${M.txt}</b></p>` + M.rows.map(r => `<button data-a="pick" data-r="${r[0]}">${r[0]}</button>`).join(' ')
+          + `<small>${ms[0]} of ${ms[0] + ms[1]}</small>`;
+      },
+      pick(b) {
+        const ok = b.dataset.r == M.ans[0];
+        ms[ok ? 0 : 1]++;
+        q.innerHTML = `<p><b>${M.txt}</b></p><p class="a">${ok ? 'Correct' : 'Not quite: ' + M.ans[0]}</p>`
+          + `<p>${M.rows.map(r => `${r[0]}: ${r[M.col]}`).join('<br>')}</p><button data-a="mc">Next</button><small>${ms[0]} of ${ms[0] + ms[1]}</small>`;
+      }
+    };
+
+    // Pick-one questions mirror practice tests: rank four refrigerants, or find the one in a category
+    const shuf = a => [...a].sort(() => Math.random() - .5);
+    let M, ms = [0, 0];
+    function mcq() {
+      if (Math.random() < .5) {
+        const c = 3 + (Math.random() * 2 | 0), lo = Math.random() < .5, seen = new Set(), rows = [];
+        for (const r of shuf(D)) {
+          const k = key(r, c);
+          if (!seen.has(k)) { seen.add(k); rows.push(r); if (rows.length == 4) break; }
+        }
+        const ans = rows.reduce((a, b) => (key(b, c) < key(a, c)) == lo ? b : a);
+        return { rows, ans, col: c, txt: `Which has the ${lo ? 'lowest' : 'highest'} ${H[c]}?` };
+      }
+      const c = [1, 6, 7][Math.random() * 3 | 0], v = r => c == 1 ? grp(r) : r[c], t = shuf(D)[0];
+      return {
+        rows: shuf([t, ...shuf(D.filter(r => v(r) != v(t))).slice(0, 3)]), ans: t, col: c,
+        txt: { 1: `Which is classed as ${v(t)}?`, 6: `Which is ${v(t)} pressure?`, 7: `Which is ASHRAE ${v(t)}?` }[c]
+      };
+    }
+    q.onclick = e => act[e.target.dataset.a]?.(e.target);
+    const open = (m, fn) => { q.hidden = q.dataset.m == m && !q.hidden; q.dataset.m = m; if (!q.hidden) fn(); };
+    $('#qb').onclick = () => open('flash', act.go);
+    $('#mb').onclick = () => open('pick', () => { ms = [0, 0]; act.mc(); });
+
+    draw();
+  </script>
+</body>
+
+</html>
