@@ -187,16 +187,19 @@
       color: var(--g)
     }
 
-    td:nth-child(4),
-    td:nth-child(5) {
+    td:nth-child(3),
+    td:nth-child(4) {
       font-variant-numeric: tabular-nums
     }
 
     /*Chemistry not needed*/
+    /*
     table tr th:nth-child(3),
     table tr td:nth-child(3) {
       display: none;
     }
+      */
+
 
     .cv {
       background: var(--line);
@@ -237,6 +240,7 @@
   <script>
     const $ = s => document.querySelector(s);
     const H = ['R#', 'Type', 'Chemistry', 'ODP', 'GWP', 'Common use', 'EPA pressure', 'ASHRAE'];
+    const O = [0, 1, 3, 4, 6, 7, 5, 2]; // display order: indexes into H and into each data row
     const D = `R-11|CFC|Trichlorofluoromethane|1.0|4,750|Centrifugal chillers (legacy)|Low|A1
 R-113|CFC|Trichlorotrifluoroethane|0.8|6,130|Solvent, centrifugal chillers (legacy)|Low|A1
 R-114|CFC|Dichlorotetrafluoroethane|1.0|10,000|Chillers, naval systems (legacy)|Low|A1
@@ -288,10 +292,10 @@ R-744|Natural|Carbon dioxide|0|1|Transcritical/cascade systems|Very High|A1`
     function draw() {
       const rows = view();
       $('#chips').innerHTML = G.map(g => `<button aria-pressed="${g == f.g}">${g}</button>`).join('');
-      $('#t thead').innerHTML = '<tr>' + H.map((h, i) =>
-        `<th><button data-i="${i}">${h}${f.sort == i ? (f.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`).join('') + '</tr>';
+      $('#t thead').innerHTML = '<tr>' + O.map(i =>
+        `<th><button data-i="${i}">${H[i]}${f.sort == i ? (f.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`).join('') + '</tr>';
       $('#t tbody').innerHTML = rows.map(r =>
-        `<tr style="--g:var(--${grp(r)})">` + r.map((c, i) => `<td${i == f.cover ? ' class="cv"' : ''}>${c}</td>`).join('') + '</tr>').join('');
+        `<tr style="--g:var(--${grp(r)})">` + O.map(i => `<td${i == f.cover ? ' class="cv"' : ''}>${r[i]}</td>`).join('') + '</tr>').join('');
       $('#n').textContent = `${rows.length} of ${D.length}`;
     }
 
@@ -308,7 +312,7 @@ R-744|Natural|Carbon dioxide|0|1|Transcritical/cascade systems|Very High|A1`
     };
     $('#chips').onclick = e => { if (e.target.matches('button')) { f.g = e.target.textContent; draw(); } };
     $('#s').oninput = e => { f.s = e.target.value.toLowerCase().trim(); draw(); };
-    $('#cv').innerHTML = '<option value="-1">Nothing</option>' + H.slice(1).map((h, i) => `<option value="${i + 1}">${h}</option>`).join('');
+    $('#cv').innerHTML = '<option value="-1">Nothing</option>' + O.slice(1).map(i => `<option value="${i}">${H[i]}</option>`).join('');
     $('#cv').onchange = e => { f.cover = +e.target.value; draw(); };
 
     // Quiz: filtered rows in random order; missed ones return to the end of the queue
@@ -320,7 +324,7 @@ R-744|Natural|Carbon dioxide|0|1|Transcritical/cascade systems|Very High|A1`
         return;
       }
       cur = Q.shift();
-      col = f.cover > 0 ? f.cover : 1 + Math.random() * 7 | 0;
+      col = f.cover > 0 ? f.cover : O[1 + Math.random() * 7 | 0];
       q.innerHTML = `<p><b>${cur[0]}</b> ${H[col]}?</p><button data-a="show">Show answer</button><small>${Q.length + 1} left</small>`;
     }
     const act = {
